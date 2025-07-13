@@ -1,118 +1,197 @@
 import streamlit as st
-from docx import Document
-from io import BytesIO
 
-# ---------------------------
-# 객관식 퀴즈 + 템플릿 매핑
-# ---------------------------
+# --------------------------
+# 실험 정보와 퀴즈 정의
+# --------------------------
 
-EXPERIMENTS = {
-    "STZ Injection": {
+experiments = {
+    "STZ 주사액 제조": {
+        "summary": [
+            "🧪 STZ란?",
+            "• 췌장의 β세포를 선택적으로 파괴하여 당뇨병을 유도하는 실험용 화학물질입니다.",
+            "• 보통 0.1M Citrate Buffer (pH 4.5)에 녹여 즉시 사용합니다.",
+            "• STZ는 빛과 수분에 불안정하므로 냉장보관하며, 가능한 한 빠르게 투여해야 합니다.",
+            "",
+            "📌 실험 유의사항",
+            "• 마우스 체중 측정 후 용량 계산 (예: 180 mg/kg 기준)",
+            "• STZ 제조 후 15분 내 투여 권장",
+            "• STZ 조제는 보호구 착용 및 생물안전작업대(BSC) 내에서 수행"
+        ],
+        "checklist": [
+            "STZ 냉장 보관 여부 확인",
+            "체중 측정 및 정확한 용량 계산 완료",
+            "0.1M Citrate Buffer 준비 및 pH 확인",
+            "STZ 제조 후 즉시 사용 (15분 내)",
+            "BSC 내에서 조제 및 주사 실시",
+            "주사 후 개체 상태 모니터링 계획 수립"
+        ],
         "quiz": [
             {
-                "question": "STZ는 어떤 질환을 유도하기 위해 사용되는가?",
-                "options": ["고혈압", "당뇨병", "간염", "골다공증"],
-                "answer": "당뇨병"
+                "question": "STZ는 어떤 세포를 주로 파괴하는가?",
+                "options": ["α세포", "β세포", "T세포", "간세포"],
+                "answer": "β세포",
+                "explanation": "STZ는 췌장의 인슐린 분비 β세포를 선택적으로 파괴하여 고혈당을 유도합니다."
             },
             {
-                "question": "STZ 주사액 제조 시 사용되는 완충액은?",
-                "options": ["PBS", "Tris-HCl", "시트르산", "HEPES"],
-                "answer": "시트르산"
+                "question": "STZ 용해에 가장 적절한 완충 용액은?",
+                "options": ["PBS", "0.9% NaCl", "Citrate Buffer", "RPMI"],
+                "answer": "Citrate Buffer",
+                "explanation": "0.1M Citrate Buffer (pH 4.5)는 STZ의 안정성을 유지하는 데 적합합니다."
+            },
+            {
+                "question": "STZ 제조 후 언제 사용하는 것이 권장되는가?",
+                "options": ["3시간 이내", "제조 직후", "24시간 이내", "냉동 보관 후 해동"],
+                "answer": "제조 직후",
+                "explanation": "STZ는 수분에 불안정하므로 제조 후 15분 내 사용이 가장 바람직합니다."
             }
-        ],
-        "template": "templates/STZ.docx"
+        ]
     },
-    "PCR": {
+
+    "PCR (Polymerase Chain Reaction)": {
+        "summary": [
+            "🧪 PCR이란?",
+            "• 특정 DNA 서열을 증폭하는 분자생물학 기술입니다.",
+            "• 주로 유전자 확인, 돌연변이 분석, 병원체 탐지에 사용됩니다.",
+            "",
+            "📌 실험 유의사항",
+            "• 정확한 primer와 template DNA 사용",
+            "• 마스터믹스 조제 후 ice 위에서 작업 유지",
+            "• 오염 방지를 위한 무균 작업 환경 유지"
+        ],
+        "checklist": [
+            "Template DNA 준비",
+            "Primer set 확인",
+            "PCR Master mix 조제",
+            "PCR 조건 세팅 (denaturation, annealing, extension)",
+            "Amplicon 크기 확인 계획 수립"
+        ],
         "quiz": [
             {
-                "question": "PCR의 목적은 무엇인가?",
-                "options": ["RNA 합성", "DNA 증폭", "단백질 분리", "세포 배양"],
-                "answer": "DNA 증폭"
+                "question": "PCR 반응에 반드시 포함되어야 하는 구성 요소가 아닌 것은?",
+                "options": ["dNTP", "Primer", "DNA polymerase", "RNase"],
+                "answer": "RNase",
+                "explanation": "RNase는 RNA 분해효소로 PCR 반응에는 필요하지 않습니다."
             },
             {
-                "question": "PCR 반응에 필요한 효소는?",
-                "options": ["Trypsin", "Taq polymerase", "Ligase", "RNase"],
-                "answer": "Taq polymerase"
+                "question": "PCR에서 annealing 단계는 무엇을 의미하는가?",
+                "options": ["DNA 중합", "DNA 열변성", "Primer 결합", "단백질 번역"],
+                "answer": "Primer 결합",
+                "explanation": "Annealing 단계는 primer가 template DNA에 결합하는 온도 구간입니다."
             }
-        ],
-        "template": "templates/PCR.docx"
+        ]
     },
+
     "Cell Culture": {
+        "summary": [
+            "🧫 Cell culture란?",
+            "• 세포를 인공적으로 배양액과 환경에서 증식시키는 기초 실험 기법입니다.",
+            "",
+            "📌 실험 유의사항",
+            "• 무균 환경 유지 (BSC 사용)",
+            "• 배지 교체 주기 확인 및 배양기 온도/CO₂ 유지",
+            "• 오염 여부 육안 확인 및 mycoplasma test 정기 수행"
+        ],
+        "checklist": [
+            "배지 및 시약 준비",
+            "세포 상태 확인 (현미경)",
+            "세포 수 계산 및 split 계획",
+            "CO₂ 인큐베이터 상태 확인",
+            "폐기물 및 오염 방지 수칙 점검"
+        ],
         "quiz": [
             {
-                "question": "세포 배양 시 CO₂ 인큐베이터의 일반적인 설정 온도는?",
-                "options": ["25°C", "30°C", "37°C", "42°C"],
-                "answer": "37°C"
+                "question": "Cell culture에서 CO₂는 왜 필요한가?",
+                "options": ["산소 공급", "온도 조절", "pH 조절", "세포 고정"],
+                "answer": "pH 조절",
+                "explanation": "CO₂는 배지의 중탄산 완충 시스템과 반응하여 pH를 조절합니다."
             },
             {
-                "question": "계대배양 시 세포 부착을 떨어뜨리기 위해 사용하는 효소는?",
-                "options": ["Collagenase", "Trypsin", "Proteinase K", "Pepsin"],
-                "answer": "Trypsin"
+                "question": "세포 배양 시 가장 흔한 오염 원인은?",
+                "options": ["세포 증식", "핵 분열", "무균 불량", "고온 배양"],
+                "answer": "무균 불량",
+                "explanation": "배양 과정 중 무균 작업이 지켜지지 않으면 오염이 발생합니다."
             }
-        ],
-        "template": "templates/CellCulture.docx"
+        ]
     },
+
     "Western Blot": {
+        "summary": [
+            "🧬 Western blot이란?",
+            "• 단백질을 검출하고 정량화하는 전기영동 기반 실험 기법입니다.",
+            "",
+            "📌 실험 유의사항",
+            "• 정확한 단백질 정량 (BCA or Bradford)",
+            "• 적절한 gel 농도 선택",
+            "• 항체 희석과 incubation 조건 최적화"
+        ],
+        "checklist": [
+            "단백질 추출 및 정량 완료",
+            "SDS-PAGE 준비 및 로딩",
+            "Transfer 조건 설정",
+            "Blocking 및 1차 항체/2차 항체 반응 준비",
+            "Detection 방법 (chemiluminescence 등) 확인"
+        ],
         "quiz": [
             {
-                "question": "Western blot에서 단백질을 분리하는 데 사용하는 겔은?",
-                "options": ["아가로스 겔", "SDS-PAGE", "Native gel", "Acrylamide gel"],
-                "answer": "SDS-PAGE"
+                "question": "Western blot에서 1차 항체의 역할은?",
+                "options": ["단백질 전기영동", "단백질에 특이적 결합", "전하 이동", "빛 방출"],
+                "answer": "단백질에 특이적 결합",
+                "explanation": "1차 항체는 검출하고자 하는 표적 단백질에 특이적으로 결합합니다."
             },
             {
-                "question": "Western blot에서 단백질 검출에 사용되는 항체는?",
-                "options": ["1차 항체", "2차 항체", "IgE", "IgM"],
-                "answer": "1차 항체"
+                "question": "Transfer 단계의 목적은?",
+                "options": ["단백질 분해", "Gel 생성", "막으로 이동", "항체 희석"],
+                "answer": "막으로 이동",
+                "explanation": "단백질을 gel에서 membrane으로 전이시켜 항체 검출이 가능하도록 합니다."
             }
-        ],
-        "template": "templates/WesternBlot.docx"
+        ]
     }
 }
 
-# ---------------------------
-# 문서 로드 함수
-# ---------------------------
+# 앱 인터페이스 생성
+st.title("🧪 랩 실습 퀴즈 학습기")
+selected_exp = st.selectbox("실험을 선택하세요", list(experiments.keys()))
 
-def load_docx(path):
-    try:
-        return Document(path)
-    except Exception as e:
-        st.error(f"📂 템플릿 로드 실패: {e}")
-        return None
+if selected_exp:
+    exp = experiments[selected_exp]
 
-def docx_to_bytes(doc):
-    buf = BytesIO()
-    doc.save(buf)
-    buf.seek(0)
-    return buf
+    st.header("📘 요약 카드")
+    for line in exp["summary"]:
+        st.markdown(line)
 
-# ---------------------------
-# Streamlit 앱
-# ---------------------------
+    st.divider()
+    st.header("🧾 실습 체크리스트")
+    for item in exp["checklist"]:
+        st.checkbox(item)
 
-st.title("🧪 랩 실습 교육 콘텐츠 자동 생성기")
-st.caption("실험을 선택하면 객관식 퀴즈와 보고서 템플릿을 자동 생성합니다.")
+    st.divider()
+    st.header("❓ 객관식 퀴즈")
 
-exp_name = st.selectbox("🔬 실험 선택", list(EXPERIMENTS.keys()))
-
-if exp_name:
-    st.subheader("📋 객관식 퀴즈")
-    quiz_list = EXPERIMENTS[exp_name]["quiz"]
     score = 0
+    answers = []
 
-    for i, q in enumerate(quiz_list):
-        selected = st.radio(f"{i+1}. {q['question']}", q["options"], key=f"{exp_name}_{i}")
-        if selected == q["answer"]:
-            score += 1
+    for idx, item in enumerate(exp["quiz"]):
+        st.subheader(f"Q{idx + 1}. {item['question']}")
+        user_answer = st.radio("답을 선택하세요:", item["options"], key=f"q{selected_exp}_{idx}")
+        answers.append((user_answer, item["answer"], item["explanation"]))
 
-    st.success(f"정답 수: {score} / {len(quiz_list)}")
+    st.divider()
 
-    st.subheader("📄 보고서 템플릿 다운로드")
-    doc = load_docx(EXPERIMENTS[exp_name]["template"])
-    if doc:
-        st.download_button(
-            label="📥 템플릿 다운로드",
-            data=docx_to_bytes(doc),
-            file_name=f"{exp_name.replace(' ', '_')}_report.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+    if st.button("📊 점수 확인"):
+        for user, correct, _ in answers:
+            if user == correct:
+                score += 1
+
+        percent = int(score / len(answers) * 100)
+        st.subheader(f"✅ 당신의 점수: {percent}점")
+
+        for idx, (user, correct, explanation) in enumerate(answers):
+            result = "🟢 정답" if user == correct else "🔴 오답"
+            st.markdown(f"**Q{idx + 1}**: {result}  \n정답: {correct}  \n해설: {explanation}")
+
+        if percent >= 80:
+            st.success("이 실험에 대한 이해도가 높습니다! 🔬")
+        elif percent >= 50:
+            st.info("기본 개념은 이해했지만, 복습이 필요합니다.")
+        else:
+            st.error("학습이 더 필요합니다. 요약 카드와 다시 학습해보세요.")
