@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 from docx import Document
 from io import BytesIO
 
@@ -11,14 +10,65 @@ st.markdown("실험을 선택하면 퀴즈와 보고서 템플릿이 자동 생�
 experiment_list = ["STZ 주사액 제조", "PCR", "Cell culture", "Western blot"]
 selected_exp = st.selectbox("🔬 실험을 선택하세요", experiment_list)
 
-# 퀴즈 데이터 로드
-try:
-    with open("data/quiz_data.json", "r", encoding="utf-8") as f:
-        quiz_data = json.load(f)
-except FileNotFoundError:
-    st.error("⚠️ 퀴즈 데이터 파일이 없습니다. 'data/quiz_data.json'을 확인하세요.")
-    st.stop()
+# ✅ 외부 파일 없이 내부 딕셔너리로 퀴즈 구성
+quiz_data = {
+    "STZ 주사액 제조": [
+        {
+            "type": "mcq",
+            "question": "STZ 완충액 제조에 가장 많이 사용되는 pH는?",
+            "options": ["pH 3.0", "pH 4.5", "pH 7.0", "pH 9.0"],
+            "answer": "pH 4.5"
+        },
+        {
+            "type": "mcq",
+            "question": "STZ 주사액은 사용 직전에 제조해야 하는 이유는?",
+            "options": ["온도에 민감해서", "빛에 민감해서", "수분에 의해 분해되기 때문", "냄새가 나서"],
+            "answer": "수분에 의해 분해되기 때문"
+        },
+        {
+            "type": "subjective",
+            "question": "STZ 주사 전 금식이 필요한 이유를 서술하시오."
+        }
+    ],
+    "PCR": [
+        {
+            "type": "mcq",
+            "question": "PCR의 기본 구성 요소가 아닌 것은?",
+            "options": ["dNTP", "Primer", "DNA polymerase", "Ligase"],
+            "answer": "Ligase"
+        },
+        {
+            "type": "subjective",
+            "question": "PCR에서 negative control이 중요한 이유를 서술하시오."
+        }
+    ],
+    "Cell culture": [
+        {
+            "type": "mcq",
+            "question": "일반적인 세포배양 조건에서 CO₂ 농도는?",
+            "options": ["0%", "2%", "5%", "10%"],
+            "answer": "5%"
+        },
+        {
+            "type": "subjective",
+            "question": "세포 배양 시 오염을 방지하기 위한 기본 수칙을 쓰시오."
+        }
+    ],
+    "Western blot": [
+        {
+            "type": "mcq",
+            "question": "Western blot에서 단백질 전이에 사용하는 막은?",
+            "options": ["PVDF", "Cellulose", "Nylon", "Nitrocellulose"],
+            "answer": "PVDF"
+        },
+        {
+            "type": "subjective",
+            "question": "비특이적 밴드가 나타날 경우의 대처 방안을 서술하시오."
+        }
+    ]
+}
 
+# 퀴즈 출력
 quiz = quiz_data.get(selected_exp, [])
 if not quiz:
     st.warning("해당 실험에 대한 퀴즈가 준비되지 않았습니다.")
