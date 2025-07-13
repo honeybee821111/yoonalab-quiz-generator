@@ -1,1 +1,36 @@
 
+[실험 보고서 템플릿]
+
+실험명: Western Blot
+
+1. 실험 목적  
+특정 단백질의 발현 유무 및 발현량을 분석하기 위해 Western blot 실험을 수행한다.
+
+2. 실험 재료 및 시약  
+- RIPA buffer, protease inhibitor  
+- SDS-PAGE gel (10–12%)  
+- PVDF membrane  
+- 1차/2차 항체 (HRP-conjugated)  
+- ECL detection reagent  
+- BCA kit, Loading buffer  
+- 전기영동 장치, 전이 시스템, ChemiDoc
+
+3. 실험 방법 요약  
+- 단백질 추출 및 정량  
+- SDS-PAGE → Membrane 전이  
+- 항체 반응 및 발색 후 이미지 분석
+
+4. 결과 기록  
+- 대상 단백질명: __________  
+- 밴드 위치 (kDa): __________  
+- 샘플 로딩 양: __________ µg  
+- GAPDH 대조 결과: □ 정상 □ 이상  
+- 비특이적 밴드: □ 있음 □ 없음
+
+5. 고찰  
+- 항체 희석비 및 blocking 조건 검토  
+- loading량, 전이 조건 적절성 평가  
+- 비특이적 반응의 원인과 개선점
+
+6. 참고문헌  
+- 제조사 protocol 또는 실험실 매뉴얼
