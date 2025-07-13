@@ -2,123 +2,117 @@ import streamlit as st
 from docx import Document
 from io import BytesIO
 
-# 앱 제목
-st.title("🧪 랩 실습 퀴즈 및 보고서 생성기")
-st.markdown("실험을 선택하면 퀴즈와 보고서 템플릿이 자동 생성됩니다.")
+# ---------------------------
+# 객관식 퀴즈 + 템플릿 매핑
+# ---------------------------
 
-# 실험 목록
-experiment_list = ["STZ 주사액 제조", "PCR", "Cell culture", "Western blot"]
-selected_exp = st.selectbox("🔬 실험을 선택하세요", experiment_list)
-
-# ✅ 외부 파일 없이 내부 딕셔너리로 퀴즈 구성
-quiz_data = {
-    "STZ 주사액 제조": [
-        {
-            "type": "mcq",
-            "question": "STZ 완충액 제조에 가장 많이 사용되는 pH는?",
-            "options": ["pH 3.0", "pH 4.5", "pH 7.0", "pH 9.0"],
-            "answer": "pH 4.5"
-        },
-        {
-            "type": "mcq",
-            "question": "STZ 주사액은 사용 직전에 제조해야 하는 이유는?",
-            "options": ["온도에 민감해서", "빛에 민감해서", "수분에 의해 분해되기 때문", "냄새가 나서"],
-            "answer": "수분에 의해 분해되기 때문"
-        },
-        {
-            "type": "subjective",
-            "question": "STZ 주사 전 금식이 필요한 이유를 서술하시오."
-        }
-    ],
-    "PCR": [
-        {
-            "type": "mcq",
-            "question": "PCR의 기본 구성 요소가 아닌 것은?",
-            "options": ["dNTP", "Primer", "DNA polymerase", "Ligase"],
-            "answer": "Ligase"
-        },
-        {
-            "type": "subjective",
-            "question": "PCR에서 negative control이 중요한 이유를 서술하시오."
-        }
-    ],
-    "Cell culture": [
-        {
-            "type": "mcq",
-            "question": "일반적인 세포배양 조건에서 CO₂ 농도는?",
-            "options": ["0%", "2%", "5%", "10%"],
-            "answer": "5%"
-        },
-        {
-            "type": "subjective",
-            "question": "세포 배양 시 오염을 방지하기 위한 기본 수칙을 쓰시오."
-        }
-    ],
-    "Western blot": [
-        {
-            "type": "mcq",
-            "question": "Western blot에서 단백질 전이에 사용하는 막은?",
-            "options": ["PVDF", "Cellulose", "Nylon", "Nitrocellulose"],
-            "answer": "PVDF"
-        },
-        {
-            "type": "subjective",
-            "question": "비특이적 밴드가 나타날 경우의 대처 방안을 서술하시오."
-        }
-    ]
+EXPERIMENTS = {
+    "STZ Injection": {
+        "quiz": [
+            {
+                "question": "STZ는 어떤 질환을 유도하기 위해 사용되는가?",
+                "options": ["고혈압", "당뇨병", "간염", "골다공증"],
+                "answer": "당뇨병"
+            },
+            {
+                "question": "STZ 주사액 제조 시 사용되는 완충액은?",
+                "options": ["PBS", "Tris-HCl", "시트르산", "HEPES"],
+                "answer": "시트르산"
+            }
+        ],
+        "template": "templates/STZ.docx"
+    },
+    "PCR": {
+        "quiz": [
+            {
+                "question": "PCR의 목적은 무엇인가?",
+                "options": ["RNA 합성", "DNA 증폭", "단백질 분리", "세포 배양"],
+                "answer": "DNA 증폭"
+            },
+            {
+                "question": "PCR 반응에 필요한 효소는?",
+                "options": ["Trypsin", "Taq polymerase", "Ligase", "RNase"],
+                "answer": "Taq polymerase"
+            }
+        ],
+        "template": "templates/PCR.docx"
+    },
+    "Cell Culture": {
+        "quiz": [
+            {
+                "question": "세포 배양 시 CO₂ 인큐베이터의 일반적인 설정 온도는?",
+                "options": ["25°C", "30°C", "37°C", "42°C"],
+                "answer": "37°C"
+            },
+            {
+                "question": "계대배양 시 세포 부착을 떨어뜨리기 위해 사용하는 효소는?",
+                "options": ["Collagenase", "Trypsin", "Proteinase K", "Pepsin"],
+                "answer": "Trypsin"
+            }
+        ],
+        "template": "templates/CellCulture.docx"
+    },
+    "Western Blot": {
+        "quiz": [
+            {
+                "question": "Western blot에서 단백질을 분리하는 데 사용하는 겔은?",
+                "options": ["아가로스 겔", "SDS-PAGE", "Native gel", "Acrylamide gel"],
+                "answer": "SDS-PAGE"
+            },
+            {
+                "question": "Western blot에서 단백질 검출에 사용되는 항체는?",
+                "options": ["1차 항체", "2차 항체", "IgE", "IgM"],
+                "answer": "1차 항체"
+            }
+        ],
+        "template": "templates/WesternBlot.docx"
+    }
 }
 
-# 퀴즈 출력
-quiz = quiz_data.get(selected_exp, [])
-if not quiz:
-    st.warning("해당 실험에 대한 퀴즈가 준비되지 않았습니다.")
-else:
-    st.subheader("📘 퀴즈")
-    score = 0
-    user_answers = []
-
-    for idx, q in enumerate(quiz):
-        st.markdown(f"**Q{idx + 1}. {q['question']}**")
-        if q["type"] == "mcq":
-            answer = st.radio("선택하세요", q["options"], key=idx)
-        else:
-            answer = st.text_input("답을 입력하세요", key=idx)
-        user_answers.append(answer)
-
-    if st.button("✅ 정답 확인"):
-        for idx, q in enumerate(quiz):
-            if q["type"] == "mcq":
-                correct = q["answer"]
-                if user_answers[idx] == correct:
-                    score += 1
-                    st.success(f"Q{idx + 1} 정답!")
-                else:
-                    st.error(f"Q{idx + 1} 오답 ❌ (정답: {correct})")
-            else:
-                st.info(f"Q{idx + 1}는 주관식입니다. 직접 확인하세요.")
-        st.markdown(f"🎯 총 점수: **{score} / {len(quiz)}**")
-
-# 보고서 템플릿 다운로드
-st.subheader("📄 보고서 템플릿 다운로드")
-
-template_path = f"templates/{selected_exp.replace(' ', '')}.docx"
+# ---------------------------
+# 문서 로드 함수
+# ---------------------------
 
 def load_docx(path):
     try:
-        doc = Document(path)
-        buffer = BytesIO()
-        doc.save(buffer)
-        buffer.seek(0)
-        return buffer
+        return Document(path)
     except Exception as e:
-        st.error(f"📂 템플릿을 불러올 수 없습니다: {e}")
+        st.error(f"📂 템플릿 로드 실패: {e}")
         return None
 
-docx_file = load_docx(template_path)
-if docx_file:
-    st.download_button(
-        label="📥 보고서 템플릿 다운로드 (.docx)",
-        data=docx_file,
-        file_name=f"{selected_exp.replace(' ', '')}_Report.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+def docx_to_bytes(doc):
+    buf = BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return buf
+
+# ---------------------------
+# Streamlit 앱
+# ---------------------------
+
+st.title("🧪 랩 실습 교육 콘텐츠 자동 생성기")
+st.caption("실험을 선택하면 객관식 퀴즈와 보고서 템플릿을 자동 생성합니다.")
+
+exp_name = st.selectbox("🔬 실험 선택", list(EXPERIMENTS.keys()))
+
+if exp_name:
+    st.subheader("📋 객관식 퀴즈")
+    quiz_list = EXPERIMENTS[exp_name]["quiz"]
+    score = 0
+
+    for i, q in enumerate(quiz_list):
+        selected = st.radio(f"{i+1}. {q['question']}", q["options"], key=f"{exp_name}_{i}")
+        if selected == q["answer"]:
+            score += 1
+
+    st.success(f"정답 수: {score} / {len(quiz_list)}")
+
+    st.subheader("📄 보고서 템플릿 다운로드")
+    doc = load_docx(EXPERIMENTS[exp_name]["template"])
+    if doc:
+        st.download_button(
+            label="📥 템플릿 다운로드",
+            data=docx_to_bytes(doc),
+            file_name=f"{exp_name.replace(' ', '_')}_report.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
