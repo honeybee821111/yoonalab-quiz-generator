@@ -1,1 +1,35 @@
 
+[실험 보고서 템플릿]
+
+실험명: PCR (Polymerase Chain Reaction)
+
+1. 실험 목적  
+특정 유전자의 존재 유무를 확인하거나 유전자 발현을 정량하기 위해 DNA를 증폭하는 PCR 실험을 수행한다.
+
+2. 실험 재료 및 시약  
+- Template DNA  
+- Forward/Reverse Primer  
+- dNTP mix  
+- Taq DNA polymerase  
+- 10X PCR buffer (+MgCl₂)  
+- DW, PCR 튜브, PCR 기기
+
+3. 실험 방법 요약  
+- Master mix 조성 후 샘플 혼합  
+- Thermal cycler 설정:  
+  - 95°C 3분 → (95°C 30초 → 55°C 30초 → 72°C 1분) × 30회 → 72°C 5분  
+- 결과는 전기영동을 통해 확인
+
+4. 결과 기록  
+- 증폭 유전자 이름: __________  
+- 예상 크기 (bp): __________  
+- 밴드 유무: □ 있음 □ 없음  
+- 비특이적 밴드: □ 있음 □ 없음
+
+5. 고찰  
+- 프라이머 최적화 여부  
+- dNTP, polymerase 농도 조정 가능성  
+- contamination 방지를 위한 대책
+
+6. 참고문헌  
+- PCR 원리 및 실험 프로토콜 문헌
